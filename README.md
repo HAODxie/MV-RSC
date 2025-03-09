@@ -1,38 +1,88 @@
-# Project Title 🚀
 
-![License](https://img.shields.io/github/license/yourusername/project-name?style=flat-square)
-![GitHub last commit](https://img.shields.io/github/last-commit/yourusername/project-name?style=flat-square)
-![GitHub stars](https://img.shields.io/github/stars/yourusername/project-name?style=social)
+# MV-RSC: Multi-View Radiographic Analysis Framework
 
-> This project uses a parallel network of Res Net and Swin Transformer to detect and identify vulnerable plaques in the carotid artery through maximum density projection (MIP).
+![GitHub](https://img.shields.io/github/license/HAODxie/MV-RSC)
 
-**[Live Demo](https://demo.example.com)** | **[Documentation](https://docs.example.com)** | **[Issue Tracker](https://issues.example.com)**
+## Dataset Structure
 
----
+```
+data/
+└── plaques/
+    ├── test/
+    │   ├── dataset1/
+    │   │   ├── VP/
+    │   │   └── CP/
+    │   ├── dataset2/
+    │   │   ├── VP/
+    │   │   └── CP/
+    │   └── ... (dataset3-dataset9)
+    └── train/
+        ├── dataset1/
+        │   ├── VP/
+        │   └── CP/
+        ├── dataset2/
+        │   ├── VP/
+        │   └── CP/
+        └── ... (dataset3-dataset9)
+```
 
-## Table of Contents 📑
-- [Features](#features-)
-- [Quick Start](#quick-start-)
-- [Installation](#installation-)
-- [Configuration](#configuration-)
-- [Usage](#usage-)
-- [Development](#development-)
-- [Contributing](#contributing-)
-- [License](#license-)
+- **Hierarchy**:
+  - Root: `data`
+  - Level 1: `plaques`
+  - Level 2: `test`/`train`
+  - Level 3: `dataset1-dataset9`
+  - Level 4: `VP`  & `CP` 
 
----
+- **Image Formats**: PNG, JPG, JPEG (224×224、Grayscale images recommended)
 
-## Features ✨
-- **核心功能 1**：简明描述
-- **核心功能 2**：使用场景说明
-- **独特卖点**：项目与众不同的地方
-- **扩展能力**：支持插件/模块化等
+## Installation
 
----
-
-## Quick Start 🚀
 ```bash
-# 最基本的运行命令（适用于快速体验）
-docker run -p 8080:80 your-image
-# 或
-npx create-project@latest
+git clone https://github.com/HAODxie/MV-RSC.git
+cd MV-RSC
+```
+
+## Training Pipeline
+
+1. **Prepare Dataset**
+   - Maintain directory structure as shown above
+   - Ensure balanced image distribution between VP/CP folders
+
+2. **Base Models Training**
+```bash
+python RSC_train.py
+```
+   - Generates 9 models in `runs/train_RSCNN_Parallel/data1-9/fold_[1-5]`
+   - Each fold contains:
+     - `best.pt`: Optimal weights
+     - `last.pt`: Final weights
+
+3. **Fusion Model Training**
+```bash
+python MV_RSC_train.py
+```
+   - Uses `fold_1/best.pt` as base
+   - Outputs to `runs/train_RSCNN_Parallel/train_attention`
+
+## Evaluation
+
+| Model Type | Command                   | Output Directory     |
+|------------|---------------------------|----------------------|
+| Base       | `python RSC_detect.py`    | `runs/detect/detect_RSCNN_Parallel`    |
+| Fusion     | `python MV_RSC_detect.py` | `runs/detect/detect_RSCNN_Parallel/train_attention` |
+
+## Output Structure
+
+
+
+## Requirements
+- Python 3.8+
+- PyTorch 1.8+
+- CUDA 11.3+ (recommended)
+- 16GB+ VRAM for optimal performance
+
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+```
+
+Simply copy this entire content into a new file named `README.md` in your project root directory. The Markdown formatting will render properly on GitHub.
