@@ -1,7 +1,8 @@
 
 # MV-RSC: Multi-View Radiographic Analysis Framework
 
-![GitHub]([https://img.shields.io/github/license/HAODxie/MV-RSC](https://github.com/HAODxie/MV-RSC/blob/main/LICENSE))
+[![License](https://img.shields.io/badge/License-MIT-%230B0B0B?style=flat-square&labelColor=white&logoWidth=20)](https://github.com/HAODxie/MV-RSC/blob/main/LICENSE)
+
 
 ## Dataset Structure
 
