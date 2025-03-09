@@ -36,7 +36,7 @@ data/
 
 - **Image Formats**: PNG, JPG, JPEG (224×224、Grayscale images recommended)
 
-## Installation
+## 🚀Installation
 
 ```bash
 git clone https://github.com/HAODxie/MV-RSC.git
@@ -65,7 +65,7 @@ python MV_RSC_train.py
    - Uses `fold_1/best.pt` as base
    - Outputs to `runs/train_RSCNN_Parallel/train_attention`
 
-## Evaluation
+## 📊Evaluation
 
 | Model Type | Command                   | Output Directory     |
 |------------|---------------------------|----------------------|
