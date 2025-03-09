@@ -72,7 +72,6 @@ python MV_RSC_train.py
 | Base       | `python RSC_detect.py`    | `runs/detect/detect_RSCNN_Parallel`    |
 | Fusion     | `python MV_RSC_detect.py` | `runs/detect/detect_RSCNN_Parallel/train_attention` |
 
-## Output Structure
 
 
 
