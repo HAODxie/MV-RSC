@@ -12,18 +12,18 @@ data/
     ├── test/
     │   ├── dataset1/
     │   │   ├── VP/
-    │   │   └── CP/
+    │   │   └── SP/
     │   ├── dataset2/
     │   │   ├── VP/
-    │   │   └── CP/
+    │   │   └── SP/
     │   └── ... (dataset3-dataset9)
     └── train/
         ├── dataset1/
         │   ├── VP/
-        │   └── CP/
+        │   └── SP/
         ├── dataset2/
         │   ├── VP/
-        │   └── CP/
+        │   └── SP/
         └── ... (dataset3-dataset9)
 ```
 
@@ -32,7 +32,7 @@ data/
   - Level 1: `plaques`
   - Level 2: `test`/`train`
   - Level 3: `dataset1-dataset9`
-  - Level 4: `VP`  & `CP` 
+  - Level 4: `VP`  & `SP` 
 
 - **Image Formats**: PNG, JPG, JPEG (224×224、Grayscale images recommended)
 
@@ -47,7 +47,7 @@ cd MV-RSC
 
 1. **Prepare Dataset**
    - Maintain directory structure as shown above
-   - Ensure balanced image distribution between VP/CP folders
+   - Ensure balanced image distribution between VP/SP folders
 
 2. **Base Models Training**
 ```bash
