@@ -221,7 +221,7 @@ def main(args):
             )
 
             # Model initialization
-            if args.model_type == 'rscnn_parallel':
+            if args.model_type == 'RSCNN_Parallel':
                 model = RSCNN_Parallel(num_classes=args.num_classes).to(device)
 
 
