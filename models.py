@@ -139,67 +139,52 @@ from timm.models.swin_transformer import SwinTransformerBlock
 
 
 class RSCNN_Parallel(nn.Module):
-    def __init__(self, num_classes=3):
-        super(RSCNN_Parallel, self).__init__()
-
-
-        self.resnet = models.resnet50(weights='IMAGENET1K_V1')
-
-        self.resnet.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
+    def __init__(self, num_classes=2):
+        super().__init__()
+        
+       
+        self.resnet = resnet50(weights='IMAGENET1K_V1')
+        
+    
+        old_conv = self.resnet.conv1
+        self.resnet.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, 
+                                     padding=3, bias=False)
+      
+        with torch.no_grad():
+            self.resnet.conv1.weight[:,0] = torch.mean(old_conv.weight, dim=1)
+        
+      
         self.resnet = nn.Sequential(*list(self.resnet.children())[:-2])
-
-
-        self.swin = nn.Sequential(
-            nn.Conv2d(1, 96, kernel_size=4, stride=4),
-            nn.LayerNorm([96, 56, 56]),
-            SwinTransformerBlock(dim=96, num_heads=3, window_size=7),
-            nn.Conv2d(96, 192, kernel_size=2, stride=2),
-            nn.LayerNorm([192, 28, 28]),
-            SwinTransformerBlock(dim=192, num_heads=6, window_size=7),
-            nn.Conv2d(192, 384, kernel_size=2, stride=2),
-            nn.LayerNorm([384, 14, 14]),
-            SwinTransformerBlock(dim=384, num_heads=12, window_size=7),
-            nn.Conv2d(384, 768, kernel_size=2, stride=2),
-            nn.LayerNorm([768, 7, 7])
-        )
-
-
-
-        self.ca_resnet = TAM(2048, 7, 7)
-        self.ca_swin = TAM(768, 7, 7)
-
-
-        self.fusion = nn.Conv2d(2048 + 768, 512, kernel_size=1)
-
-        self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-
-
-        self.classifier = nn.Sequential(
-            nn.Linear(512, 128),
-            nn.ReLU(),
-            nn.Dropout(0.5),
-            nn.Linear(128, num_classes)
-        )
+        self.ca_resnet = CA_Block(2048, 7, 7)
+        
+     
+        self.swin = timm.create_model('swin_tiny_patch4_window7_224', 
+                                    pretrained=False,
+                                    in_chans=1,
+                                    num_classes=0)
+        self.ca_swin = CA_Block(768, 7, 7)
+        
+      
+        self.avgpool = nn.AdaptiveAvgPool2d(1)
+        self.fc = nn.Linear(2048+768, num_classes)
+       
+        nn.init.kaiming_normal_(self.resnet.conv1.weight, mode='fan_out')
+        nn.init.normal_(self.fc.weight, 0, 0.01)
+        nn.init.constant_(self.fc.bias, 0)
 
     def forward(self, x):
-
-        resnet_features = self.resnet(x)
-        resnet_features = self.ca_resnet(resnet_features)
-
-
-        swin_features = self.swin(x)
-        swin_features = self.ca_swin(swin_features)
-
-        combined = torch.cat([resnet_features, swin_features], dim=1)
-        fused = self.fusion(combined)
-
-
-        pooled = self.avgpool(fused)
-        flattened = pooled.view(pooled.size(0), -1)
-
-
-        output = self.classifier(flattened)
-        return output
+       
+        res_feat = self.resnet(x)
+        res_feat = self.ca_resnet(res_feat)
+        res_feat = self.avgpool(res_feat).flatten(1)
+        
+   
+        swin_feat = self.swin.forward_features(x)
+        swin_feat = swin_feat.transpose(1,2).reshape(-1,768,7,7)
+        swin_feat = self.ca_swin(swin_feat)
+        swin_feat = self.avgpool(swin_feat).flatten(1)
+        
+        return self.fc(torch.cat([res_feat, swin_feat], dim=1))
 
 
 
